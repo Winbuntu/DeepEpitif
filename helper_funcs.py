@@ -128,3 +128,5 @@ class MetricsCallback(Callback):
         print(train_classification_result)
         print("Validation Data:") 
         print(val_classification_result)
+
+

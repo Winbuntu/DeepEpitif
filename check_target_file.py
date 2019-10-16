@@ -1,4 +1,8 @@
 
+
+def clean_target_files
+
+
 fileout = open("regions_for_learning_with_head.clean.equal_size.bed","w")
 
 with open("regions_for_learning_with_head.clean.bed") as f:

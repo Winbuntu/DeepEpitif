@@ -1,6 +1,9 @@
 import os
 
-def bed_peaks_to_input_regions(bed_file, region_length):
+def bed_peaks_to_input_regions(bed_file, region_length, genome_size_file, temp_path):
+
+    print("Make sure th chromosome names in bed file match chromosome names in fasta files and genome size files!")
+
     bedout = open(bed_file+"target_file.txt","w")
 
     with open(bed_file) as f:
@@ -12,8 +15,6 @@ def bed_peaks_to_input_regions(bed_file, region_length):
 
             center = (start+end)/2
 
-            #print(center)
-
             new_start = int(center - region_length/2)
             new_end = int(center + region_length/2)
 
@@ -21,9 +22,9 @@ def bed_peaks_to_input_regions(bed_file, region_length):
     
     bedout.close()
 
-    os.system("""cat GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file.txt | grep -v "^chrM" > GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file_clean.txt""")
+    #os.system("""cat GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file.txt | grep -v "^chrM" > GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file_clean.txt""")
 
-    os.system("bedtools makewindows -g ../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/mm10.genome.size -w 1500 > mm10_1.5kb_bins.bed")
+    os.system("bedtools makewindows -g " + genome_size_file + " -w  " + str(region_length) + " > whole_genome_bins.bed")
             
     os.system("""bedtools intersect -v -a mm10_1.5kb_bins.bed -b GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file_clean.txt > target_null.bed""")
     
