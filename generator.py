@@ -229,7 +229,6 @@ class DataGenerator(Sequence):
         self.data=open_data_file(data_path,tasks,num_to_read)
         
         #self.epidata = open_epidata_file(genome_size_file, epi_track_files) # 
-
         self.epi_track_files =  epi_track_files
         
         #bw_handles = [pyBigWig.open(epi_track_files[i]) for i in range(len(epi_track_files))]
@@ -295,21 +294,19 @@ class DataGenerator(Sequence):
         seqs=np.array([[ltrdict.get(x,[0,0,0,0]) for x in seq] for seq in seqs])
         x_batch=np.expand_dims(seqs,1)
         
-        #x_epidata_batch = np.array([  [self.epidata[(genome_dict[i[0]] + i[1]):(genome_dict[i[0]] + i[2]) , : ]]   for i in bed_entries ])
-        
-        x_epidata_batch_pos =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in pos_bed_entries ])
-        x_epidata_batch_neg =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in neg_bed_entries ])
-
-        x_epidata_batch = np.concatenate( (x_epidata_batch_pos,x_epidata_batch_neg), axis=0 )
-
-        x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
-
         #extract the positive and negative labels at the current batch of indices
         y_batch_pos=self.ones.iloc[pos_inds]
         y_batch_neg=self.zeros.iloc[neg_inds]
         y_batch=np.concatenate((y_batch_pos,y_batch_neg),axis=0)
         #add in the labels for the reverse complement sequences, if used 
+
+        if self.epi_track_files is None:
+            return(x_batch,y_batch)
         
+        x_epidata_batch_pos =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in pos_bed_entries ])
+        x_epidata_batch_neg =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in neg_bed_entries ])
+        x_epidata_batch = np.concatenate( (x_epidata_batch_pos,x_epidata_batch_neg), axis=0 )
+        x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
 
         return (x_batch_full,y_batch)            
     
@@ -325,19 +322,15 @@ class DataGenerator(Sequence):
         #one-hot-encode the fasta sequences 
         seqs=np.array([[ltrdict.get(x,[0,0,0,0]) for x in seq] for seq in seqs])
         x_batch=np.expand_dims(seqs,1)
-
-        # get epidata pieces and combine it with seqeunce one-hot matrix
-        
-        #x_epidata_batch = np.array([  [self.epidata[(genome_dict[i[0]] + i[1]):(genome_dict[i[0]] + i[2]) , : ]]   for i in bed_entries ])
-
-        x_epidata_batch =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in bed_entries])
-        #print(x_epidata_batch.shape)
-        x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
-
-
         #extract the labels at the current batch of indices 
         y_batch=np.asarray(self.data.iloc[inds])
-        
+
+        if self.epi_track_files is None:
+            return(x_batch,y_batch)
+
+        # get epidata pieces and combine it with seqeunce one-hot matrix
+        x_epidata_batch =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in bed_entries])
+        x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
         
         return (x_batch_full,y_batch)    
     
