@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow.python.keras.callbacks import Callback
 from collections import OrderedDict
 from sklearn.metrics import auc, log_loss, precision_recall_curve, roc_auc_score, average_precision_score
-
+import pandas as pd
 
 
 ltrdict = {'a':[1,0,0,0],
@@ -130,3 +130,8 @@ class MetricsCallback(Callback):
         print(val_classification_result)
 
 
+def get_labels_from_target_files(file, tasks):
+    
+    data=pd.read_csv(file,header=0,sep='\t',usecols=["CHR","START","END"]+tasks,index_col=[0,1,2])
+
+    return data[tasks].values.astype(bool)

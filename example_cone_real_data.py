@@ -112,11 +112,6 @@ def prediction_and_evaluation():
     print(ClassificationResult(test_db_observed,model_predictions_bool))
 
 
-def get_labels_from_target_files(file, tasks):
-    
-    data=pd.read_csv(file,header=0,sep='\t',usecols=["CHR","START","END"]+tasks,index_col=[0,1,2])
-
-    return data[tasks].values.astype(bool)
 
 
 
