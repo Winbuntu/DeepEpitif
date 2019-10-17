@@ -3,7 +3,7 @@ from tensorflow.python.keras.layers.core import Dropout, Reshape, Dense, Activat
 from tensorflow.python.keras.layers.convolutional import Conv2D, MaxPooling2D
 from tensorflow.python.keras.optimizers import Adadelta, SGD, RMSprop
 import tensorflow.python.keras.losses
-from tensorflow.python.keras.constraints import maxnorm
+from tensorflow.python.keras.constraints import maxnorm, NonNeg
 from tensorflow.python.keras.layers.normalization import BatchNormalization
 from tensorflow.python.keras.regularizers import l1, l2
 from tensorflow.python.keras.callbacks import EarlyStopping, History, ModelCheckpoint
@@ -37,7 +37,7 @@ set_random_seed(1234)
 def initialize_model():
 
     one_filter_keras_model=Sequential() 
-    one_filter_keras_model.add(Conv2D(filters=40,kernel_size=(1,11),padding="same",input_shape=  (1,1500,5)  ))
+    one_filter_keras_model.add(Conv2D(filters=40,kernel_size=(1,11),padding="same",input_shape=  (1,1500,5) , kernel_constraint=NonNeg()  ))
     one_filter_keras_model.add(BatchNormalization(axis=-1))
     one_filter_keras_model.add(Activation('relu'))
 
@@ -94,7 +94,7 @@ def example_generator():
                                                   use_multiprocessing=False,
                                                   workers=4,
                                                   max_queue_size=50,
-                callbacks=[History(), ModelCheckpoint("ATAC_peak_Classification.h5", 
+                callbacks=[History(), ModelCheckpoint("ATAC_peak_Classification_positive_constrain.h5", 
                                            monitor='val_loss', verbose=1, save_best_only=True, mode='min') ])
 
 
@@ -102,7 +102,7 @@ def prediction_and_evaluation():
     from tensorflow.python.keras.models import load_model
 
     model = initialize_model()
-    model.load_weights("ATAC_peak_Classification.h5")
+    model.load_weights("ATAC_peak_Classification_positive_constrain.h5")
 
     #Get predictions on the test set 
 
@@ -125,7 +125,7 @@ def prediction_and_evaluation():
 
 
 if __name__ == "__main__":
-    #example_generator()
-    prediction_and_evaluation()
+    example_generator()
+    #prediction_and_evaluation()
 
     #print( get_labels_from_target_files("test.bed",["TARGET"]) )
