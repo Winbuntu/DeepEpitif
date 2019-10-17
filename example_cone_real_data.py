@@ -38,13 +38,23 @@ set_random_seed(1234)
 def initialize_model():
 
     one_filter_keras_model=Sequential() 
-    one_filter_keras_model.add(Conv2D(filters=10,kernel_size=(1,15),padding="same",input_shape=  (1,1500,5)  ))
+    one_filter_keras_model.add(Conv2D(filters=40,kernel_size=(1,11),padding="same",input_shape=  (1,1500,5)  ))
     one_filter_keras_model.add(BatchNormalization(axis=-1))
     one_filter_keras_model.add(Activation('relu'))
-    one_filter_keras_model.add(MaxPooling2D(pool_size=(1,35)))
+
+
+    one_filter_keras_model.add(MaxPooling2D(pool_size=(1,30)))
+
     one_filter_keras_model.add(Flatten())
+    one_filter_keras_model.add(Dense(40))
+    one_filter_keras_model.add(BatchNormalization(axis=-1))
+    one_filter_keras_model.add(Activation('relu'))
+    one_filter_keras_model.add(Dropout(0.5))
+    
     one_filter_keras_model.add(Dense(1))
     one_filter_keras_model.add(Activation("sigmoid"))
+
+
     one_filter_keras_model.summary()
     one_filter_keras_model.compile(optimizer='adam',loss='binary_crossentropy', metrics=[precision, recall, specificity] )
 
@@ -78,12 +88,12 @@ def example_generator():
 
     trainning_history=model.fit_generator(train_gen,
                                                   validation_data=valid_gen,
-                                                  steps_per_epoch=500,
-                                                  validation_steps=100,
-                                                  epochs=20,
+                                                  steps_per_epoch=5000,
+                                                  validation_steps=500,
+                                                  epochs=10,
                                                   verbose=1,
                                                   use_multiprocessing=False,
-                                                  workers=1,
+                                                  workers=4,
                                                   max_queue_size=50,
                 callbacks=[History(), ModelCheckpoint("ATAC_peak_Classification.h5", 
                                            monitor='val_loss', verbose=1, save_best_only=True, mode='min') ])
