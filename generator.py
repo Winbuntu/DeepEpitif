@@ -25,11 +25,11 @@ from helper_funcs import ltrdict
 
 #from matplotlib import pyplot as plt 
 
-def get_epimatrix_from_bw(many_data_paths, chr_name, start, end):
-    epimatrix_piece = np.zeros(( end-start ,len(many_data_paths)))
+def get_epimatrix_from_bw(bw_list, chr_name, start, end):
+    epimatrix_piece = np.zeros(( end-start ,len(bw_list)))
 
-    for i in range(len(many_data_paths)):
-        bw = pyBigWig.open(many_data_paths[i])
+    for i in range(len(bw_list)):
+        bw = bw_list[i]
         epimatrix_piece[:,i] = bw.values(chr_name,start,end)
         epimatrix_piece[np.isnan(epimatrix_piece)] = 0
 
@@ -231,6 +231,11 @@ class DataGenerator(Sequence):
         #self.epidata = open_epidata_file(genome_size_file, epi_track_files) # 
         self.epi_track_files =  epi_track_files
         
+        if self.epi_track_files is not None:
+            self.bw_opened_list = []
+            for i in range(len( self.epi_track_files )):
+                self.bw_opened_list.append(  pyBigWig.open( self.epi_track_files[i] )  )
+
         #bw_handles = [pyBigWig.open(epi_track_files[i]) for i in range(len(epi_track_files))]
 
         self.indices=np.arange(self.data.shape[0])
@@ -303,8 +308,8 @@ class DataGenerator(Sequence):
         if self.epi_track_files is None:
             return(x_batch,y_batch)
         
-        x_epidata_batch_pos =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in pos_bed_entries ])
-        x_epidata_batch_neg =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in neg_bed_entries ])
+        x_epidata_batch_pos =  np.array([  [get_epimatrix_from_bw( self.bw_opened_list  , chr_name = i[0], start = i[1], end = i[2])] for i in pos_bed_entries ])
+        x_epidata_batch_neg =  np.array([  [get_epimatrix_from_bw( self.bw_opened_list  , chr_name = i[0], start = i[1], end = i[2])] for i in neg_bed_entries ])
         x_epidata_batch = np.concatenate( (x_epidata_batch_pos,x_epidata_batch_neg), axis=0 )
         x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
 
@@ -329,7 +334,7 @@ class DataGenerator(Sequence):
             return(x_batch,y_batch)
 
         # get epidata pieces and combine it with seqeunce one-hot matrix
-        x_epidata_batch =  np.array([  [get_epimatrix_from_bw( self.epi_track_files  , chr_name = i[0], start = i[1], end = i[2])] for i in bed_entries])
+        x_epidata_batch =  np.array([  [get_epimatrix_from_bw( self.bw_opened_list  , chr_name = i[0], start = i[1], end = i[2])] for i in bed_entries])
         x_batch_full = np.concatenate((x_batch,x_epidata_batch),axis=3)
         
         return (x_batch_full,y_batch)    
