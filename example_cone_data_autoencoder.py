@@ -118,9 +118,7 @@ def prediction_and_evaluation():
 
     test_db_observed = get_labels_from_target_files("test.bed",["TARGET"])
 
-    #np.sum(test_db_observed == model_predictions_bool)
-
-    print(ClassificationResult(test_db_observed,model_predictions))
+    print(ClassificationResult(test_db_observed,model_predictions_bool))
 
 
 
