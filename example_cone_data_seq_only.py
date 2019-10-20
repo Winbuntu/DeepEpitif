@@ -37,7 +37,7 @@ set_random_seed(1234)
 def initialize_model():
 
     one_filter_keras_model=Sequential() 
-    one_filter_keras_model.add(Conv2D(filters=40,kernel_size=(1,11),padding="same",input_shape=  (1,1500,5)  ))
+    one_filter_keras_model.add(Conv2D(filters=40,kernel_size=(1,11),padding="same",input_shape=  (1,1500,4)  ))
     one_filter_keras_model.add(BatchNormalization(axis=-1))
     one_filter_keras_model.add(Activation('relu'))
 
@@ -73,12 +73,12 @@ def example_generator():
 
     train_gen = DataGenerator(data_path="train.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
-    genome_size_file="./mm10.genome.size", epi_track_files=["MethylC-seq_WT_cones_rep1_CpG.clean.plus.sorted.bw"],
+    genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=True,upsample_ratio=0.3)
     
     valid_gen = DataGenerator(data_path="valid.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
-    genome_size_file="./mm10.genome.size", epi_track_files=["MethylC-seq_WT_cones_rep1_CpG.clean.plus.sorted.bw"],
+    genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=True,upsample_ratio=0.3)
 
 
@@ -94,7 +94,7 @@ def example_generator():
                                                   use_multiprocessing=False,
                                                   workers=4,
                                                   max_queue_size=50,
-                callbacks=[History(), ModelCheckpoint("ATAC_peak_Classification.h5", 
+                callbacks=[History(), ModelCheckpoint("ATAC_peak_Classification_DNA_only.h5", 
                                            monitor='val_loss', verbose=1, save_best_only=True, mode='min') ])
 
 
@@ -102,13 +102,13 @@ def prediction_and_evaluation():
     from tensorflow.python.keras.models import load_model
 
     model = initialize_model()
-    model.load_weights("ATAC_peak_Classification.h5")
+    model.load_weights("ATAC_peak_Classification_DNA_only.h5")
 
     #Get predictions on the test set 
 
     test_gen = DataGenerator(data_path="test.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
-    genome_size_file="./mm10.genome.size", epi_track_files=["MethylC-seq_WT_cones_rep1_CpG.clean.plus.sorted.bw"],
+    genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=False)
 
 
@@ -127,7 +127,7 @@ def prediction_and_evaluation():
 
 
 if __name__ == "__main__":
-    example_generator()
-    prediction_and_evaluation() # balanced accuracy 94.11%, AUC 0.984
+    #example_generator()
+    prediction_and_evaluation()
 
     #print( get_labels_from_target_files("test.bed",["TARGET"]) )
