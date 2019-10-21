@@ -29,31 +29,77 @@ import matplotlib.pyplot as plt
 
 
 
-def CAC(input_shape=(1,1024,4), filters = [32, 64, 128 , 10]):
-    model = Sequential( )
+def CAC(input_shape=(1,1024,4)):
 
-    model.add(Conv2D(32, 15, strides=4, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+    input_layer = Input(shape=input_shape)
 
-    model.add(Conv2D(64, 15, strides=4, padding='same', activation='relu', name='conv2', input_shape=input_shape))
+    x = Conv2D(32, 15, strides=4, padding='same', activation='relu', name='conv1', input_shape=input_shape)(input_layer)
 
-    model.add(Conv2D(128, 11, strides=4, padding='same', activation='relu', name='conv3', input_shape=input_shape))
+    x = Conv2D(64, 15, strides=4, padding='same', activation='relu', name='conv2', input_shape=input_shape)(x)
 
-    model.add(Flatten())
+    x = Conv2D(128, 11, strides=4, padding='same', activation='relu', name='conv3', input_shape=input_shape)(x)
 
-    model.add(Dense(units=10, name='embedding'))
+    x = Flatten()(x)
 
-    model.add(Dense(units=2048, activation='relu'))
+    encoded = Dense(units=10, name='embedding')(x)
 
-    model.add(Reshape(  (1, 16, 128)   ))
+    ###
 
-    model.add(Conv2DTranspose(64, 15, strides=(1,4), padding='same', activation='relu', name='deconv3'))
+    x = Dense(units=2048, activation='relu')(encoded)
 
-    model.add(Conv2DTranspose(32, 15, strides=(1,4), padding='same', activation='relu', name='deconv2'))
+    x = Reshape(  (1, 16, 128)   )(x)
 
-    model.add(Conv2DTranspose(4, 15, strides=(1,4), padding='same', name='deconv1'))
+    x = Conv2DTranspose(64, 15, strides=(1,4), padding='same', activation='relu', name='deconv3')(x)
+
+    x = Conv2DTranspose(32, 15, strides=(1,4), padding='same', activation='relu', name='deconv2')(x)
+
+    decoded = Conv2DTranspose(4, 15, strides=(1,4), padding='same', name='deconv1')(x)
+
+    ###
+
+    autoencoder = Model(input_layer, decoded)
+
+    autoencoder.summary()
+
+    encoder = Model(input_layer, encoded, name='encoder')
+
+    encoder.summary()
+
+    simutation_parameters = {
+        "PWM_file_1": "/home/qan/Desktop/DeepEpitif/DeepMetif/JASPAR2018_CORE_vertebrates_non-redundant_pfms_jaspar/MA0835.1.jaspar",
+        "PWM_file_2": "/home/qan/Desktop/DeepEpitif/DeepMetif/JASPAR2018_CORE_vertebrates_non-redundant_pfms_jaspar/MA0515.1.jaspar",
+        "seq_length":1024,
+        "center_pos": 50,
+        "interspace":10
+    }
     
-    model.summary()
-    return model
+    [train_X, train_Y, test_X , test_Y] =  get_simulated_dataset(parameters = simutation_parameters, train_size = 20000, test_size = 5000)
+
+    
+    #################################
+    # build autoencoder model
+
+    
+ 
+    autoencoder.compile(optimizer='adam',loss='mse')
+
+    history_autoencoder=autoencoder.fit(x=train_X,
+                                  y=train_X,
+                                  batch_size=10,
+                                  epochs=3,
+                                  verbose=1,
+                                  callbacks=[ History()],
+                                  validation_data=(test_X, test_X))
+
+    encoded_imgs = encoder.predict(test_X)
+    
+    print(encoded_imgs.shape)
+
+    colors = ['#e41a1c', '#377eb8', '#4daf4a']
+
+    plt.scatter(encoded_imgs[:, 0], encoded_imgs[:, 1], c = np.array(colors)[test_Y.flatten()]   )
+    plt.colorbar()
+    plt.show()
 
 
 
@@ -67,9 +113,6 @@ def example_Cov_auto():
     }
     
     [train_X, train_Y, test_X , test_Y] =  get_simulated_dataset(parameters = simutation_parameters, train_size = 20000, test_size = 5000)
-
-    
-
 
     
     #################################
@@ -88,7 +131,17 @@ def example_Cov_auto():
                                   validation_data=(test_X, test_X))
 
 
-    
+   
+if __name__ == "__main__":
+    #example_Cov_auto()
+    CAC()
+
+
+
+
+
+
+ 
 
 '''
    input_shape = (1, 1000, 4)
@@ -153,9 +206,31 @@ def example_Cov_auto():
     plt.colorbar()
     plt.show()
 
+
+
+    model = Sequential( )
+
+    model.add(Conv2D(32, 15, strides=4, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+
+    model.add(Conv2D(64, 15, strides=4, padding='same', activation='relu', name='conv2', input_shape=input_shape))
+
+    model.add(Conv2D(128, 11, strides=4, padding='same', activation='relu', name='conv3', input_shape=input_shape))
+
+    model.add(Flatten())
+
+    model.add(Dense(units=10, name='embedding'))
+
+    model.add(Dense(units=2048, activation='relu'))
+
+    model.add(Reshape(  (1, 16, 128)   ))
+
+    model.add(Conv2DTranspose(64, 15, strides=(1,4), padding='same', activation='relu', name='deconv3'))
+
+    model.add(Conv2DTranspose(32, 15, strides=(1,4), padding='same', activation='relu', name='deconv2'))
+
+    model.add(Conv2DTranspose(4, 15, strides=(1,4), padding='same', name='deconv1'))
+    
+    model.summary()
+
+
 '''
-
-if __name__ == "__main__":
-    example_Cov_auto()
-    #CAC()
-
