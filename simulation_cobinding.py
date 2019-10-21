@@ -110,11 +110,17 @@ def make_a_positive_DNA_seq_co_binding(seq_length, center_pos, PWM_file_1 = None
 
 def get_simulated_dataset(parameters, train_size, test_size ):
 
-    seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(train_size)  ]
+    #seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(train_size)  ]
     
-    seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(train_size)  ]
+    seqs_with_motif_1 = [  'A'*parameters["seq_length"]  for i in range(train_size)  ]
 
-    seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(train_size)  ]
+    #seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(train_size)  ]
+
+    seqs_with_motif_2 = [  'C'*parameters["seq_length"]  for i in range(train_size)  ]
+
+    #seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(train_size)  ]
+
+    seqs_with_motif_1_and_2 = [  'G'*parameters["seq_length"]  for i in range(train_size)  ]
 
     train_X = one_hot_encode(seqs_with_motif_1 + seqs_with_motif_2 + seqs_with_motif_1_and_2)
 
@@ -122,11 +128,17 @@ def get_simulated_dataset(parameters, train_size, test_size ):
     
     ##################################
 
-    seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(test_size)  ]
+    #seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(test_size)  ]
     
-    seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(test_size)  ]
+    seqs_with_motif_1 = [  'A'*parameters["seq_length"]  for i in range(test_size)  ]
 
-    seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(test_size)  ]
+    #seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(test_size)  ]
+
+    seqs_with_motif_2 = [  'C'*parameters["seq_length"]  for i in range(test_size)  ]
+
+    #seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(test_size)  ]
+
+    seqs_with_motif_1_and_2 = [  'G'*parameters["seq_length"]  for i in range(test_size)  ]
 
     test_X = one_hot_encode(seqs_with_motif_1 + seqs_with_motif_2 + seqs_with_motif_1_and_2)
 

@@ -3,7 +3,7 @@ from tensorflow.python.keras.layers.core import Dropout, Reshape, Dense, Activat
 
 from tensorflow.python.keras.layers.convolutional import Conv2D, MaxPooling2D, UpSampling2D
 
-from tensorflow.python.keras.layers import Input
+from tensorflow.python.keras.layers import Input, Conv2DTranspose
 
 from tensorflow.python.keras.optimizers import Adadelta, SGD, RMSprop
 import tensorflow.python.keras.losses
@@ -25,14 +25,45 @@ from simulation_cobinding import get_simulated_dataset
 from helper_funcs import MetricsCallback
 
 
+import matplotlib.pyplot as plt
+
+
+
+def CAC(input_shape=(1,1024,4), filters = [32, 64, 128 , 10]):
+    model = Sequential( )
+
+    model.add(Conv2D(32, 15, strides=4, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+
+    model.add(Conv2D(64, 15, strides=4, padding='same', activation='relu', name='conv2', input_shape=input_shape))
+
+    model.add(Conv2D(128, 11, strides=4, padding='same', activation='relu', name='conv3', input_shape=input_shape))
+
+    model.add(Flatten())
+
+    model.add(Dense(units=10, name='embedding'))
+
+    model.add(Dense(units=2048, activation='relu'))
+
+    model.add(Reshape(  (1, 16, 128)   ))
+
+    model.add(Conv2DTranspose(64, 15, strides=(1,4), padding='same', activation='relu', name='deconv3'))
+
+    model.add(Conv2DTranspose(32, 15, strides=(1,4), padding='same', activation='relu', name='deconv2'))
+
+    model.add(Conv2DTranspose(4, 15, strides=(1,4), padding='same', name='deconv1'))
+    
+    model.summary()
+    return model
+
+
 
 def example_Cov_auto():
     simutation_parameters = {
         "PWM_file_1": "/home/qan/Desktop/DeepEpitif/DeepMetif/JASPAR2018_CORE_vertebrates_non-redundant_pfms_jaspar/MA0835.1.jaspar",
         "PWM_file_2": "/home/qan/Desktop/DeepEpitif/DeepMetif/JASPAR2018_CORE_vertebrates_non-redundant_pfms_jaspar/MA0515.1.jaspar",
-        "seq_length":1000,
-        "center_pos": 100,
-        "interspace":50
+        "seq_length":1024,
+        "center_pos": 50,
+        "interspace":10
     }
     
     [train_X, train_Y, test_X , test_Y] =  get_simulated_dataset(parameters = simutation_parameters, train_size = 20000, test_size = 5000)
@@ -43,62 +74,88 @@ def example_Cov_auto():
     
     #################################
     # build autoencoder model
-    input_img = Input(shape = (1,1000,4) )
-     
-    x = Conv2D(filters=5,kernel_size=(1,15), activation="relu", padding="same" )(input_img)
-     
-    x = MaxPooling2D(   pool_size=(1,2)   )(x)
 
-    encoded = Dense(2, activation="relu")(x)
+    model = CAC()
+ 
+    model.compile(optimizer='adam',loss='mse')
 
-    ###
-
-    x = Conv2D(filters=5,kernel_size=(1,15), activation="relu", padding="same" )(encoded)
-
-    x = UpSampling2D( size=(1,2)  )(x)
-
-    decoded = Conv2D(filters=4,kernel_size=(1,15), activation="sigmoid", padding="same")(x)
-
-    autoencoder = Model(input_img, decoded)
-
-    encoder = Model(input_img, encoded)
-
-    autoencoder.summary()
-
-    autoencoder.compile(optimizer='adam',loss='binary_crossentropy')
-
-    history_autoencoder=autoencoder.fit(x=train_X,
+    history_autoencoder=model.fit(x=train_X,
                                   y=train_X,
                                   batch_size=10,
-                                  epochs=2,
+                                  epochs=20,
                                   verbose=1,
                                   callbacks=[ History()],
                                   validation_data=(test_X, test_X))
 
-    encoded_imgs = encoder.predict(test_X)
+
+    
+
+'''
+   input_shape = (1, 1000, 4)
+
+    latent_dim = 20
+
+    inputs = Input(shape=input_shape, name='encoder_input')
+    
+    x=inputs
+
+    x = Conv2D(filters=5,kernel_size=(1,15), activation="relu", padding="same" )(x)
+
+    #x = MaxPooling2D(   pool_size=(1,2)   )(x)
+
+    shape = K.int_shape(x)
+
+    x=Flatten()(x)
+
+    latent = Dense(latent_dim, name='latent_vector')(x)
+
+    encoder = Model(inputs, latent, name='encoder')
+
+    encoder.summary()
+
+    # build decoder model
+
+    latent_inputs = Input(shape=(latent_dim, ) , name='decoder_input' )
+
+    x = Dense(shape[1] * shape[2] * shape[3])(latent_inputs)
+
+    x=Reshape((shape[1], shape[2], shape[3]))(x)
+
+    #x = UpSampling2D( size=(1,2)  )(x)
+
+    #x = Conv2DTranspose(filters=5,kernel_size=(1,15), activation="relu", padding="same" )(x)
+
+    x = Conv2DTranspose(filters=4,
+                    kernel_size=(1,15),
+                    padding='same')(x)
+
+
+    outputs = Activation('sigmoid', name='decoder_output')(x)
+
+
+    decoder = Model(latent_inputs, outputs, name='decoder')
+    
+    decoder.summary()
+
+    autoencoder = Model(inputs, decoder(encoder(inputs)), name='autoencoder')
+    
+    autoencoder.summary()
+
+    autoencoder.compile(optimizer='adam',loss='mse')
+
+        encoded_imgs = encoder.predict(test_X)
     
     print(encoded_imgs.shape)
 
-'''
+    colors = ['#e41a1c', '#377eb8', '#4daf4a']
 
-    Cov_auto = Sequential()
-    Cov_auto.add(Conv2D(filters=5,kernel_size=(1,15), activation="relu", padding="same",input_shape=(1,1000,4) ))
-    Cov_auto.add(MaxPooling2D(   pool_size=(1,2)   ) )
-    
-    #Cov_auto.add(Flatten())
-    #Cov_auto.add(Flatten())
+    plt.scatter(encoded_imgs[:, 0], encoded_imgs[:, 1], c = np.array(colors)[test_Y.flatten()]   )
+    plt.colorbar()
+    plt.show()
 
-    Cov_auto.add(Conv2D(filters=5,kernel_size=(1,15), activation="relu", padding="same" ))
-    Cov_auto.add(UpSampling2D( size=(1,2)  ))
-    Cov_auto.add(Conv2D(filters=4,kernel_size=(1,15), activation="sigmoid", padding="same"))
-
-    Cov_auto.summary()
-
-    Cov_auto.compile(optimizer='adam',loss='binary_crossentropy')
-
-    # metrics_callback=MetricsCallback(train_data=(train_X,train_Y), validation_data=(valid_X,valid_Y))
 '''
 
 if __name__ == "__main__":
     example_Cov_auto()
+    #CAC()
 
