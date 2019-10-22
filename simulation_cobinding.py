@@ -116,17 +116,17 @@ def get_simulated_dataset(parameters, train_size, test_size ):
 
     motif3 = generate_random_DNA_seq(24)
 
-    #seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(train_size)  ]
+    seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(train_size)  ]
     
-    seqs_with_motif_1 = [  generate_random_DNA_seq(500) + motif1 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
+    #seqs_with_motif_1 = [  generate_random_DNA_seq(500) + motif1 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
 
-    #seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(train_size)  ]
+    seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(train_size)  ]
 
-    seqs_with_motif_2 = [  generate_random_DNA_seq(500) + motif2 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
+    #seqs_with_motif_2 = [  generate_random_DNA_seq(500) + motif2 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
 
-    #seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(train_size)  ]
+    seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(train_size)  ]
 
-    seqs_with_motif_1_and_2 = [  generate_random_DNA_seq(500) + motif3 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
+    #seqs_with_motif_1_and_2 = [  generate_random_DNA_seq(500) + motif3 + generate_random_DNA_seq(500)  for i in range(train_size)  ]
 
     train_X = one_hot_encode(seqs_with_motif_1 + seqs_with_motif_2 + seqs_with_motif_1_and_2)
 
@@ -134,17 +134,17 @@ def get_simulated_dataset(parameters, train_size, test_size ):
     
     ##################################
 
-    #seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(test_size)  ]
+    seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(test_size)  ]
     
-    seqs_with_motif_1 = [  generate_random_DNA_seq(500) + motif1 + generate_random_DNA_seq(500)  for i in range(test_size)  ]
+    #seqs_with_motif_1 = [  generate_random_DNA_seq(500) + motif1 + generate_random_DNA_seq(500)  for i in range(test_size)  ]
 
-    #seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(test_size)  ]
+    seqs_with_motif_2 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_2"] )  for i in range(test_size)  ]
 
-    seqs_with_motif_2 = [  generate_random_DNA_seq(500) + motif2 + generate_random_DNA_seq(500)  for i in range(test_size)  ]
+    #seqs_with_motif_2 = [  generate_random_DNA_seq(500) + motif2 + generate_random_DNA_seq(500)  for i in range(test_size)  ]
 
-    #seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(test_size)  ]
+    seqs_with_motif_1_and_2 = [  make_a_positive_DNA_seq_co_binding(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file_1=parameters["PWM_file_1"], PWM_file_2=parameters["PWM_file_2"] , interspace=parameters["interspace"])  for i in range(test_size)  ]
 
-    seqs_with_motif_1_and_2 = [  generate_random_DNA_seq(500) + motif3 + generate_random_DNA_seq(500)   for i in range(test_size)  ]
+    #seqs_with_motif_1_and_2 = [  generate_random_DNA_seq(500) + motif3 + generate_random_DNA_seq(500)   for i in range(test_size)  ]
 
     test_X = one_hot_encode(seqs_with_motif_1 + seqs_with_motif_2 + seqs_with_motif_1_and_2)
 

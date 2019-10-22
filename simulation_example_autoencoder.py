@@ -141,35 +141,45 @@ def CAC_2(input_shape=(1,1024,4)):
     '''
     model = Sequential( )
 
-    model.add(Conv2D(5, 11, strides=2, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+
+    model.add(MaxPooling2D(pool_size=(1,16)))
 
     model.add(Flatten())
 
     model.add(Dense(units = 10))
 
-    model.add(Dense(units=2560, activation='relu'))
+    model.add(Dense(units=320, activation='relu'))
 
-    model.add(Reshape(  (1, 512, 5)   ))
+    model.add(Reshape(  (1, 64, 5)   ))
 
-    model.add(  Conv2DTranspose(4, 11, strides=(1,2), padding='same', activation='relu', name='deconv3') )
+    model.add(UpSampling2D(size=(1,16)))
+
+    model.add(  Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu', name='deconv3') )
 
     model.summary()
+    
+    return 0 
     '''
 
     
     input_layer = Input(shape=input_shape)
 
-    x = Conv2D(5, 11, strides=2, padding='same', activation='relu', name='conv1', input_shape=input_shape)(input_layer)
+    x = Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape)(input_layer)
+    
+    x=MaxPooling2D(pool_size=(1,16))(x)
 
     x = Flatten()(x)
 
     encoded = Dense(units = 10)(x)
 
-    x = Dense(units=2560, activation='relu')(encoded)
+    x = Dense(units=320, activation='relu')(encoded)
 
-    x = Reshape(  (1, 512, 5)   )(x)
+    x = Reshape(  (1, 64, 5)   )(x)
 
-    decoded = Conv2DTranspose(4, 11, strides=(1,2), padding='same', activation='relu', name='deconv3')(x)
+    x=UpSampling2D(size=(1,16))(x)
+
+    decoded = Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu', name='deconv3')(x)
 
     autoencoder = Model(input_layer, decoded)
 
@@ -237,7 +247,7 @@ def CAC_2(input_shape=(1,1024,4)):
     history_autoencoder=autoencoder.fit(x=train_X,
                                   y=train_X,
                                   batch_size=32,
-                                  epochs=5,
+                                  epochs=20,
                                   verbose=1,
                                   callbacks=[ History()],
                                   validation_data=(test_X, test_X))
