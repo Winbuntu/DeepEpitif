@@ -20,7 +20,7 @@ K.set_image_data_format('channels_last')
 from random import choice, seed
 import numpy as np
 
-from simulation_cobinding import get_simulated_dataset
+from simulation_cobinding_2 import get_simulated_dataset
 
 from helper_funcs import MetricsCallback
 
@@ -237,7 +237,7 @@ def CAC_2(input_shape=(1,1024,4)):
     history_autoencoder=autoencoder.fit(x=train_X,
                                   y=train_X,
                                   batch_size=32,
-                                  epochs=12,
+                                  epochs=5,
                                   verbose=1,
                                   callbacks=[ History()],
                                   validation_data=(test_X, test_X))
