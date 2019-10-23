@@ -138,31 +138,47 @@ def example_Cov_auto():
 
 def CAC_2(input_shape=(1,1024,4)):
 
-    '''
+    
     model = Sequential( )
 
     model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape))
 
-    model.add(MaxPooling2D(pool_size=(1,16)))
+    model.add(MaxPooling2D(pool_size=(1,4)))
+
+    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu'))
+
+    model.add(MaxPooling2D(pool_size=(1,4)))
+
+    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu'))
+
+    model.add(MaxPooling2D(pool_size=(1,4)))
 
     model.add(Flatten())
 
     model.add(Dense(units = 10))
 
-    model.add(Dense(units=320, activation='relu'))
+    model.add(Dense(units=80, activation='relu'))
 
-    model.add(Reshape(  (1, 64, 5)   ))
+    model.add(Reshape(  (1, 16, 5)   ))
 
-    model.add(UpSampling2D(size=(1,16)))
+    model.add(UpSampling2D(size=(1,4)))
 
-    model.add(  Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu', name='deconv3') )
+    model.add(  Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu', name='deconv3') )
+
+    model.add(UpSampling2D(size=(1,4)))
+
+    model.add(  Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu') )
+
+    model.add(UpSampling2D(size=(1,4)))
+
+    model.add(Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu'))
 
     model.summary()
     
     return 0 
-    '''
-
     
+
+    '''
     input_layer = Input(shape=input_shape)
 
     x = Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape)(input_layer)
@@ -186,7 +202,7 @@ def CAC_2(input_shape=(1,1024,4)):
     autoencoder.summary()
 
     encoder = Model(input_layer, encoded, name='encoder')
-    
+    '''
 
     '''
     input_layer = Input(shape=input_shape)
