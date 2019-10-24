@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.manifold import TSNE
 
+from tensorflow import set_random_seed
 
 
 def CAC(input_shape=(1,1024,4)):
@@ -141,15 +142,15 @@ def CAC_2(input_shape=(1,1024,4)):
     
     model = Sequential( )
 
-    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape))
+    model.add(Conv2D(10, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape))
 
-    model.add(MaxPooling2D(pool_size=(1,4)))
+    #model.add(MaxPooling2D(pool_size=(1,4)))
 
-    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu'))
+    model.add(Conv2D(10, 11, strides=1, padding='same', activation='relu'))
 
-    model.add(MaxPooling2D(pool_size=(1,4)))
+    model.add(MaxPooling2D(pool_size=(1,64)))
 
-    model.add(Conv2D(5, 11, strides=1, padding='same', activation='relu'))
+    model.add(Conv2D(10, 11, strides=1, padding='same', activation='relu'))
 
     model.add(MaxPooling2D(pool_size=(1,4)))
 
@@ -163,46 +164,70 @@ def CAC_2(input_shape=(1,1024,4)):
 
     model.add(UpSampling2D(size=(1,4)))
 
-    model.add(  Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu', name='deconv3') )
+    model.add(  Conv2D(5, 11, strides=(1,4), padding='same', activation='relu', name='deconv3') )
 
-    model.add(UpSampling2D(size=(1,4)))
+    #model.add(UpSampling2D(size=(1,4)))
 
-    model.add(  Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu') )
+    #model.add(  Conv2DTranspose(5, 11, strides=(1,4), padding='same', activation='relu') )
 
-    model.add(UpSampling2D(size=(1,4)))
+    #model.add(UpSampling2D(size=(1,4)))
 
-    model.add(Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu'))
+    #model.add(Conv2DTranspose(4, 11, strides=(1,4), padding='same', activation='relu'))
 
     model.summary()
     
-    return 0 
+    #return 0 
     
 
-    '''
+
+
+    
     input_layer = Input(shape=input_shape)
 
-    x = Conv2D(5, 11, strides=1, padding='same', activation='relu', name='conv1', input_shape=input_shape)(input_layer)
-    
-    x=MaxPooling2D(pool_size=(1,16))(x)
+    x = Conv2D(10, 11, strides=1, padding='same', activation='relu',input_shape=input_shape)(input_layer)
+    #x=BatchNormalization(axis= -1)(x)
+    #x=Activation('relu')(x)
+    #x=MaxPooling2D(pool_size=(1,4))(x)
+
+    x = Conv2D(10, 11, strides=1, padding='same', activation='relu')(x)
+    #x=BatchNormalization(axis= -1)(x)
+    #x=Activation('relu')(x)
+    x=MaxPooling2D(pool_size=(1,64))(x)
+
+    #x = Conv2D(5, 11, strides=1, padding='same', activation='relu', input_shape=input_shape)(x)
+    #x=BatchNormalization(axis= -1)(x)
+    #x=Activation('relu')(x)
+    #x=MaxPooling2D(pool_size=(1,4))(x)
 
     x = Flatten()(x)
 
     encoded = Dense(units = 10)(x)
 
-    x = Dense(units=320, activation='relu')(encoded)
 
-    x = Reshape(  (1, 64, 5)   )(x)
+    x = Dense(units=40, activation='relu')(encoded)
 
-    x=UpSampling2D(size=(1,16))(x)
+    x = Reshape(  (1, 16, 10)   )(x)
 
-    decoded = Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='relu', name='deconv3')(x)
+    #x=UpSampling2D(size=(1,4))(x)
+
+    x = Conv2DTranspose(10, 11, strides=(1,64), padding='same', activation='relu')(x)
+
+    #x=UpSampling2D(size=(1,4))(x)
+
+    #x = Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu')(x)
+
+    #x=UpSampling2D(size=(1,4))(x)
+
+    #x = Conv2DTranspose(5, 11, strides=(1,1), padding='same', activation='relu')(x)
+
+    decoded = Conv2DTranspose(4, 11, strides=(1,1), padding='same', activation='sigmoid')(x)
 
     autoencoder = Model(input_layer, decoded)
 
     autoencoder.summary()
 
     encoder = Model(input_layer, encoded, name='encoder')
-    '''
+    
 
     '''
     input_layer = Input(shape=input_shape)
@@ -258,12 +283,12 @@ def CAC_2(input_shape=(1,1024,4)):
 
     
  
-    autoencoder.compile(optimizer='adam',loss='mse')
+    autoencoder.compile(optimizer='adam',loss='binary_crossentropy')
 
     history_autoencoder=autoencoder.fit(x=train_X,
                                   y=train_X,
                                   batch_size=32,
-                                  epochs=20,
+                                  epochs=13,
                                   verbose=1,
                                   callbacks=[ History()],
                                   validation_data=(test_X, test_X))
@@ -282,7 +307,11 @@ def CAC_2(input_shape=(1,1024,4)):
     plt.show()
    
 if __name__ == "__main__":
-    #example_Cov_auto()
+
+    seed(0)
+    np.random.seed(0)
+    set_random_seed(0)
+
     CAC_2()
 
 

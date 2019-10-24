@@ -117,7 +117,7 @@ def get_simulated_dataset(parameters, train_size, test_size ):
     motif3 = generate_random_DNA_seq(10)
 
     #seqs_with_motif_1 = [ make_a_positive_DNA_seq_single_motif(seq_length = parameters["seq_length"], center_pos = parameters["center_pos"], PWM_file= parameters["PWM_file_1"] )  for i in range(train_size)  ]
-    shift_value = 40
+    shift_value = 2
     aa = int(uniform(0,shift_value))
 
     seqs_with_motif_1 = [  generate_random_DNA_seq(507 + aa) + motif1 + generate_random_DNA_seq(507-aa)  for i in range(train_size)  ]

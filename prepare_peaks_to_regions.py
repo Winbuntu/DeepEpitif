@@ -22,6 +22,8 @@ def bed_peaks_to_input_regions(bed_file, region_length, genome_size_file, temp_p
     
     bedout.close()
 
+    return 0
+    
     #os.system("""cat GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file.txt | grep -v "^chrM" > GSM1865013_ATAC-seq_WT_cones_MACS_peaks_rep1.txttarget_file_clean.txt""")
 
     os.system("bedtools makewindows -g " + genome_size_file + " -w  " + str(region_length) + " > whole_genome_bins.bed")
