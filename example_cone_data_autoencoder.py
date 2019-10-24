@@ -171,7 +171,7 @@ def prediction_and_evaluation():
 
     autoencoder_loaded = load_model("ATAC_peak_autoencoder_32.h5")
 
-    test_gen = DataGenerator(data_path="valid.bed", 
+    test_gen = DataGenerator(data_path="test.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
     genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=False)
