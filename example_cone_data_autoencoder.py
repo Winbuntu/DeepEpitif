@@ -183,7 +183,7 @@ def prediction_and_evaluation():
     
     ##########
 
-    test_gen = DataGenerator(data_path="train.2000.bed", 
+    test_gen = DataGenerator(data_path="train.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
     genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=False)
@@ -200,15 +200,23 @@ def prediction_and_evaluation():
 
     model_predictions_valid=encoder_loaded.predict_generator(test_gen,workers=4,use_multiprocessing=False,verbose=1)
 
-
     print(model_predictions_test.shape)
     print(model_predictions_train.shape)
     print(model_predictions_valid.shape)
     
     X_embedded = TSNE(n_components=2, n_jobs=4).fit_transform(  np.concatenate( (model_predictions_test, model_predictions_train, model_predictions_valid), axis=0 )  )
 
-    plt.scatter(X_embedded[:, 0], X_embedded[:, 1] , c = np.array(['red','blue','yellow'])[np.repeat( [0,1,2],[7441, 2000, 5491] )] , alpha=0.3 )
+    whole_autoencoder_embedding = np.concatenate( (model_predictions_test, model_predictions_train, model_predictions_valid), axis=0 )
+    whole_TSNE_embedding = X_embedded
+    whole_dataset_label = np.repeat( [0,1,2],[model_predictions_test.shape[0], model_predictions_train.shape[0], model_predictions_valid.shape[0]] )
 
+    np.save('whole_autoencoder_embedding',whole_autoencoder_embedding)
+    np.save('whole_TSNE_embedding',whole_TSNE_embedding)
+    np.save('whole_dataset_label',whole_dataset_label)
+
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1] , 
+    c = np.array(['red','blue','yellow'])[np.repeat( [0,1,2],[model_predictions_test.shape[0], model_predictions_train.shape[0], model_predictions_valid.shape[0]] )] , 
+    alpha=0.3, s= 5 )
     plt.colorbar()
     plt.show()
 
