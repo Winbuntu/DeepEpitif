@@ -28,7 +28,7 @@ from interpret import plot_CNN_filters
 
 import matplotlib.pyplot as plt
 
-from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE as TSNE
 
 
 from generator_for_autoencoder import DataGenerator,separate_dataset
@@ -171,18 +171,44 @@ def prediction_and_evaluation():
 
     autoencoder_loaded = load_model("ATAC_peak_autoencoder_32.h5")
 
+
+    ###########
+
     test_gen = DataGenerator(data_path="test.bed", 
     ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
     genome_size_file="./mm10.genome.size", epi_track_files=None,
     tasks=["TARGET"],upsample=False)
 
-    model_predictions=encoder_loaded.predict_generator(test_gen,workers=4,use_multiprocessing=False,verbose=1)
+    model_predictions_test=encoder_loaded.predict_generator(test_gen,workers=4,use_multiprocessing=False,verbose=1)
     
-    print(model_predictions.shape)
+    ##########
 
-    X_embedded = TSNE(n_components=2).fit_transform(model_predictions)
+    test_gen = DataGenerator(data_path="train.2000.bed", 
+    ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
+    genome_size_file="./mm10.genome.size", epi_track_files=None,
+    tasks=["TARGET"],upsample=False)
 
-    plt.scatter(X_embedded[:, 0], X_embedded[:, 1]   )
+    model_predictions_train=encoder_loaded.predict_generator(test_gen,workers=4,use_multiprocessing=False,verbose=1)
+
+
+    ##########
+
+    test_gen = DataGenerator(data_path="valid.bed", 
+    ref_fasta = "../GSM1865005_allC.MethylC-seq_WT_rods_rep1.tsv/GRCm38.primary_assembly.genome.fa.gz",
+    genome_size_file="./mm10.genome.size", epi_track_files=None,
+    tasks=["TARGET"],upsample=False)
+
+    model_predictions_valid=encoder_loaded.predict_generator(test_gen,workers=4,use_multiprocessing=False,verbose=1)
+
+
+    print(model_predictions_test.shape)
+    print(model_predictions_train.shape)
+    print(model_predictions_valid.shape)
+    
+    X_embedded = TSNE(n_components=2, n_jobs=4).fit_transform(  np.concatenate( (model_predictions_test, model_predictions_train, model_predictions_valid), axis=0 )  )
+
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1] , c = np.array(['red','blue','yellow'])[np.repeat( [0,1,2],[7441, 2000, 5491] )] , alpha=0.3 )
+
     plt.colorbar()
     plt.show()
 
